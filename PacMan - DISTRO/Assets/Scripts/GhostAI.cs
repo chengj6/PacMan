@@ -162,7 +162,7 @@ public class GhostAI : MonoBehaviour {
 		case(State.leaving):
             target = gate;
             Seek();
-            if(target.transform.position.y + 0.2f < gameObject.transform.position.y)
+            if(target.transform.position.y + 0.5f < gameObject.transform.position.y)
             {
                 _state = State.active;
             }

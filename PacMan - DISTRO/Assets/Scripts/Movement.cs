@@ -88,9 +88,15 @@ public class Movement : MonoBehaviour {
 
 		if (direction.x == 0 && direction.y == 1) {
 			y =-1 * Mathf.FloorToInt( transform.position.y);
-			if(Map[y-1][x] == '-'|| Map[y-1][x]  == '#'){
-				return false;
-			}
+			if(Map[y-1][x] == '-'){
+                if (gameObject.tag != "ghost")
+                {
+                    if (Map[y + 1][x] == '#')
+                    {
+                        return false;
+                    }
+                }
+            }
 		} else if(direction.x == 1 && direction.y == 0){
 			if (x == Map [0].Length - 1) {
 				transform.position = new Vector3 (1, transform.position.y, transform.position.z);
@@ -102,14 +108,8 @@ public class Movement : MonoBehaviour {
 			}
 		} else if(direction.x == 0 && direction.y == -1){
 			y =-1 * Mathf.CeilToInt( transform.position.y);
-			if(Map[y+1][x] == '-'){
-                if(gameObject.tag != "ghost")
-                {
-                    if(Map[y + 1][x] == '#')
-                    {
-                        return false;
-                    }
-                }
+			if(Map[y+1][x] == '-' || Map[y][x + 1] == '#')
+            {
 				return false;
 			}
 		} else if(direction.x == -1 && direction.y == 0){
