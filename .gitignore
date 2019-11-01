@@ -34,3 +34,9 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+<<<<<<< HEAD
+=======
+
+*.cache
+*.log
+>>>>>>> master
