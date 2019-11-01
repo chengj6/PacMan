@@ -96,6 +96,7 @@ public class Movement : MonoBehaviour {
                         return false;
                     }
                 }
+                return false;
             }
 		} else if(direction.x == 1 && direction.y == 0){
 			if (x == Map [0].Length - 1) {
