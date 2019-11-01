@@ -173,14 +173,8 @@ public class GhostAI : MonoBehaviour {
                 // etc.
                 // most of your AI code will be placed here!
             }
-            if (pacMan.transform.position.x < 14)
-            {
-                move._dir = Movement.Direction.left;
-            }
-            if (pacMan.transform.position.x > 14)
-            {
-                move._dir = Movement.Direction.right;
-            }
+            target = pacMan;
+            GreedyAStar();
             break;
 
 		case State.entering:
@@ -207,6 +201,91 @@ public class GhostAI : MonoBehaviour {
 
     // Utility routines
 
+    void GreedyAStar()
+    {
+        Vector2 targetPos = new Vector2(target.transform.position.x, target.transform.position.y);
+        dirs[0] = GetComponent<Movement>().checkDirectionClear(num2vec(0));
+        dirs[1] = GetComponent<Movement>().checkDirectionClear(num2vec(1));
+        dirs[2] = GetComponent<Movement>().checkDirectionClear(num2vec(2));
+        dirs[3] = GetComponent<Movement>().checkDirectionClear(num2vec(3));
+        distX = transform.position.x - targetPos.x;
+        distY = transform.position.y - targetPos.y;
+
+        float max = Mathf.Max(Mathf.Abs(distX), Mathf.Abs(distY));
+        float[] options = getOptions(max == Mathf.Abs(distX), distX < 0, distY < 0);
+        for (int i = 0; i < dirs.Length; i++)
+        {
+            if (!dirs[i])
+            {
+                options[i] = 4;
+            }
+        }
+        float min = float.MaxValue;
+        int index = 0;
+        for (int i = 0; i < options.Length; i++)
+        {
+            if (options[i] < min)
+            {
+                min = options[i];
+                index = i;
+            }
+        }
+        num2move(index);
+    }
+        
+
+    float[] getOptions(bool x, bool negX, bool negY)
+    {
+        float[] ret = new float[4];
+        if (x)
+        {
+            if(negX)
+            {
+                ret[1] = 1;
+                ret[3] = 4;
+            }
+            else
+            {
+                ret[3] = 1;
+                ret[1] = 4;
+            }
+            if(negY)
+            {
+                ret[0] = 2;
+                ret[2] = 3;
+            }
+            else
+            {
+                ret[2] = 2;
+                ret[0] = 3;
+            }
+        }
+        else
+        {
+            if (negX)
+            {
+                ret[1] = 2;
+                ret[3] = 3;
+            }
+            else
+            {
+                ret[3] = 2;
+                ret[1] = 3;
+            }
+            if (negY)
+            {
+                ret[0] = 1;
+                ret[2] = 4;
+            }
+            else
+            {
+                ret[2] = 1;
+                ret[0] = 4;
+            }
+        }
+        return ret;
+    }
+
     void Seek()
     {
         if (target == gate)
@@ -226,7 +305,28 @@ public class GhostAI : MonoBehaviour {
         }
     }
 
-	Vector2 num2vec(int n){
+    void num2move(int n)
+    {
+        switch(n)
+        {
+            case 0:
+                move._dir = Movement.Direction.up;
+                return;
+            case 1:
+                move._dir = Movement.Direction.right;
+                return;
+            case 2:
+                move._dir = Movement.Direction.down;
+                return;
+            case 3:
+                move._dir = Movement.Direction.left;
+                return;
+            default:
+                return;
+        }
+    }
+
+        Vector2 num2vec(int n){
         switch (n)
         {
             case 0:

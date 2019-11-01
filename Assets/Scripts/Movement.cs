@@ -109,7 +109,7 @@ public class Movement : MonoBehaviour {
 			}
 		} else if(direction.x == 0 && direction.y == -1){
 			y =-1 * Mathf.CeilToInt( transform.position.y);
-			if(Map[y+1][x] == '-' || Map[y][x + 1] == '#')
+			if(Map[y+1][x] == '-' || Map[y+1][x] == '#')
             {
 				return false;
 			}
