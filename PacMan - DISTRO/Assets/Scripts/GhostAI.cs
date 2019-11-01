@@ -160,17 +160,28 @@ public class GhostAI : MonoBehaviour {
 
 
 		case(State.leaving):
-
-			break;
+            target = gate;
+            Seek();
+            if(target.transform.position.y + 0.2f < gameObject.transform.position.y)
+            {
+                _state = State.active;
+            }
+            break;
 
 		case(State.active):
             if (dead) {
                 // etc.
                 // most of your AI code will be placed here!
             }
-            // etc.
-
-			break;
+            if (pacMan.transform.position.x < 14)
+            {
+                move._dir = Movement.Direction.left;
+            }
+            if (pacMan.transform.position.x > 14)
+            {
+                move._dir = Movement.Direction.right;
+            }
+            break;
 
 		case State.entering:
 
@@ -195,6 +206,25 @@ public class GhostAI : MonoBehaviour {
 	}
 
     // Utility routines
+
+    void Seek()
+    {
+        if (target == gate)
+        {
+            if (gameObject.transform.position.x < target.transform.position.x)
+            {
+                move._dir = Movement.Direction.right;
+            }
+            else if (gameObject.transform.position.x > target.transform.position.x + 0.5f)
+            {
+                move._dir = Movement.Direction.left;
+            }
+            else if (gameObject.transform.position.y < target.transform.position.y)
+            {
+                move._dir = Movement.Direction.up;
+            }
+        }
+    }
 
 	Vector2 num2vec(int n){
         switch (n)

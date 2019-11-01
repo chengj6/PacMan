@@ -102,7 +102,14 @@ public class Movement : MonoBehaviour {
 			}
 		} else if(direction.x == 0 && direction.y == -1){
 			y =-1 * Mathf.CeilToInt( transform.position.y);
-			if(Map[y+1][x] == '-'|| Map[y+1][x] == '#'){
+			if(Map[y+1][x] == '-'){
+                if(gameObject.tag != "ghost")
+                {
+                    if(Map[y + 1][x] == '#')
+                    {
+                        return false;
+                    }
+                }
 				return false;
 			}
 		} else if(direction.x == -1 && direction.y == 0){
