@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /*****************************************************************************
@@ -107,6 +108,19 @@ public class GhostAI : MonoBehaviour {
 
 	public State _state = State.waiting;
 
+    public class Node {
+        public int f { get; set; }
+        public Vector2 pos { get; set; }
+        public Node parent { get; set; }
+
+        public Node(int _f, Vector2 _pos, Node _parent)
+        {
+            f = _f;
+            pos = _pos;
+            parent = _parent;
+        }
+    }
+
     // Use this for initialization
     private void Awake()
     {
@@ -174,7 +188,7 @@ public class GhostAI : MonoBehaviour {
                 // most of your AI code will be placed here!
             }
             target = pacMan;
-            GreedyAStar();
+            PathFinding();
             break;
 
 		case State.entering:
@@ -201,89 +215,85 @@ public class GhostAI : MonoBehaviour {
 
     // Utility routines
 
-    void GreedyAStar()
+    void PathFinding()
     {
-        Vector2 targetPos = new Vector2(target.transform.position.x, target.transform.position.y);
-        dirs[0] = GetComponent<Movement>().checkDirectionClear(num2vec(0));
-        dirs[1] = GetComponent<Movement>().checkDirectionClear(num2vec(1));
-        dirs[2] = GetComponent<Movement>().checkDirectionClear(num2vec(2));
-        dirs[3] = GetComponent<Movement>().checkDirectionClear(num2vec(3));
-        distX = transform.position.x - targetPos.x;
-        distY = transform.position.y - targetPos.y;
+        List<Node> open = new List<Node>();
+        List<Node> closed = new List<Node>();
+        Vector2 goal = new Vector2(Mathf.RoundToInt(pacMan.transform.position.x), Mathf.RoundToInt(-1 * pacMan.transform.position.y));
+        Node goalNode = null;
 
-        float max = Mathf.Max(Mathf.Abs(distX), Mathf.Abs(distY));
-        float[] options = getOptions(max == Mathf.Abs(distX), distX < 0, distY < 0);
-        for (int i = 0; i < dirs.Length; i++)
+        Vector2 startPos = new Vector2(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(-1 * transform.position.y));
+        Node start = new Node(0, startPos, null);
+        open.Add(start);
+
+        while(open.Any())
         {
-            if (!dirs[i])
+            Node q = open.First<Node>();
+
+            foreach (Node node in open)
             {
-                options[i] = 4;
+                if (q.f > node.f)
+                {
+                    q = node;
+                }
             }
+
+            open.Remove(q);
+
+            List<Node> successors = new List<Node>();
+            for (int i = 0; i < 4; i++)
+            {
+                Vector2 pos = q.pos + num2vec(i);
+                if (move.Map[(int)pos.y][(int)pos.x] != '-' && move.Map[(int)pos.y][(int)pos.x] != '#')
+                {
+                    successors.Add(new Node(-1, pos, q));
+                }
+            }
+            
+            foreach (Node successor in successors)
+            {
+                if (goal == successor.pos)
+                {
+                    goalNode = successor;
+                    break;
+                }
+
+                Vector2 distance = goal - successor.pos;
+                successor.f = q.f + 1 + Mathf.Abs(Mathf.RoundToInt(distance.x)) + Mathf.Abs(Mathf.RoundToInt(distance.y));
+
+                Node openMatch = open.Find(x => x.pos == successor.pos);
+                Node closedMatch = closed.Find(x => x.pos == successor.pos);
+                if (openMatch != null && openMatch.f < successor.f) { continue; }
+                if (closedMatch != null && closedMatch.f < successor.f) { continue; }
+                open.Add(successor);
+            }
+            if (goalNode != null) { break; }
+
+            closed.Add(q);
         }
-        float min = float.MaxValue;
-        int index = 0;
-        for (int i = 0; i < options.Length; i++)
+
+        while (goalNode != null && !goalNode.parent.Equals(start))
         {
-            if (options[i] < min)
-            {
-                min = options[i];
-                index = i;
-            }
+            goalNode = goalNode.parent;
         }
-        num2move(index);
-    }
         
+        Vector2 direction = goalNode.pos - startPos;
 
-    float[] getOptions(bool x, bool negX, bool negY)
+        if (direction.Equals(new Vector2(0, 1))) {
+            move._dir = Movement.Direction.down;
+        } else if (direction.Equals(new Vector2(0, -1))) {
+            move._dir = Movement.Direction.up;
+        } else if (direction.Equals(new Vector2(1, 0))) {
+            move._dir = Movement.Direction.right;
+        } else if (direction.Equals(new Vector2(-1, 0))) {
+            move._dir = Movement.Direction.left;
+        }
+    }
+
+    bool ValidMove(Vector2 newPos)
     {
-        float[] ret = new float[4];
-        if (x)
-        {
-            if(negX)
-            {
-                ret[1] = 1;
-                ret[3] = 4;
-            }
-            else
-            {
-                ret[3] = 1;
-                ret[1] = 4;
-            }
-            if(negY)
-            {
-                ret[0] = 2;
-                ret[2] = 3;
-            }
-            else
-            {
-                ret[2] = 2;
-                ret[0] = 3;
-            }
-        }
-        else
-        {
-            if (negX)
-            {
-                ret[1] = 2;
-                ret[3] = 3;
-            }
-            else
-            {
-                ret[3] = 2;
-                ret[1] = 3;
-            }
-            if (negY)
-            {
-                ret[0] = 1;
-                ret[2] = 4;
-            }
-            else
-            {
-                ret[2] = 1;
-                ret[0] = 4;
-            }
-        }
-        return ret;
+        
+        return false;
     }
 
     void Seek()
