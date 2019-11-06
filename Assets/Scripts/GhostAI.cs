@@ -148,6 +148,7 @@ public class GhostAI : MonoBehaviour {
     /// 
     /// </summary>
 	void Update () {
+        print(ghostID + " " + _state);
 		switch (_state) {
 		case(State.waiting):
 
@@ -159,8 +160,9 @@ public class GhostAI : MonoBehaviour {
 				gameObject.GetComponent<Animator>().SetBool("Running", false);
 				gameObject.GetComponent<Animator>().SetInteger ("Direction", 0);
 				gameObject.GetComponent<Movement> ().MSpeed = 5f;
+                dead = false;
 
-				_state = State.leaving;
+                _state = State.leaving;
 
                 // etc.
 			}

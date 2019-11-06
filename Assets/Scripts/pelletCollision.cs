@@ -86,7 +86,7 @@ public class pelletCollision : MonoBehaviour {
 				collision.GetComponent<GhostAI> ().dead = true;
 				collision.GetComponent<GhostAI> ().fleeing = false;
 				collision.GetComponent<Movement> ().MSpeed = 7.5f;
-				collision.gameObject.GetComponent<CircleCollider2D> ().enabled = false;
+				//collision.gameObject.GetComponent<CircleCollider2D> ().enabled = false;
                 StartCoroutine("EatGhost");
                 //set state to path find back to start
             }
