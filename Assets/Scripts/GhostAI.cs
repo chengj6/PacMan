@@ -175,22 +175,32 @@ public class GhostAI : MonoBehaviour {
 
 		case(State.leaving):
             target = gate;
-            Seek();
-            if(target.transform.position.y + 0.5f < gameObject.transform.position.y)
+            if (target.transform.position.y + 0.5f < gameObject.transform.position.y)
             {
                 _state = State.active;
             }
+            else
+            {
+                Seek();
+                if (target.transform.position.y + 0.5f < gameObject.transform.position.y)
+                {
+                    _state = State.active;
+                }
+            }
             break;
-
 		case(State.active):
-            if (dead) {
+            if (dead)
+            {
                 // etc.
                 // most of your AI code will be placed here!
+                restart();
             }
-            target = pacMan;
-            PathFinding();
+            else
+            {
+                target = pacMan;
+                PathFinding();
+            }
             break;
-
 		case State.entering:
 
             // Leaving this code in here for you.
