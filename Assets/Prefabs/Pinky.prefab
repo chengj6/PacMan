@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 114198521745478824}
   - component: {fileID: 114410652633643712}
   - component: {fileID: 58470390797216832}
+  - component: {fileID: 7295948481713964982}
   m_Layer: 0
   m_Name: Pinky
   m_TagString: ghost
@@ -131,6 +132,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ghostID: 2
+  ghostMode: 0
   releaseTime: 2
   waitTime: 0
   range: 0
@@ -143,6 +145,7 @@ MonoBehaviour:
   - 0
   - 0
   target: {fileID: 0}
+  scatterTarget: {fileID: 0}
   chooseDirection: 1
   choices: 
   choice: 0
@@ -163,3 +166,15 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.08
+--- !u!114 &7295948481713964982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1371204068546360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ec66e4124cc73e40bfd0d4bc45bd405, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

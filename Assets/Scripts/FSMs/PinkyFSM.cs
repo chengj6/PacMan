@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ClydeFSM : MonoBehaviour
+public class PinkyFSM : MonoBehaviour
 {
     GhostAI ai;
     GameObject gate;
     GameObject pacMan;
+    Movement pacManMove;
+    GameObject pinkyTarget;
+    Sprite dummy;
+    LineRenderer line;
 
     // Start is called before the first frame update
     void Start()
@@ -14,7 +18,9 @@ public class ClydeFSM : MonoBehaviour
         ai = gameObject.GetComponent<GhostAI>();
         gate = GameObject.Find("Gate(Clone)");
         pacMan = GameObject.Find("PacMan(Clone)") ? GameObject.Find("PacMan(Clone)") : GameObject.Find("PacMan 1(Clone)");
-        ai.scatterTarget = GameObject.Find("Clyde Target");
+        pacManMove = pacMan.GetComponent<Movement>();
+        pinkyTarget = new GameObject("Pinky Target");
+        line = gameObject.GetComponent<LineRenderer>();
     }
 
     // Update is called once per frame
@@ -23,42 +29,35 @@ public class ClydeFSM : MonoBehaviour
         switch (ai._state)
         {
             case GhostAI.State.active:
-                ai.target = pacMan;
-                if (Vector3.Distance(pacMan.transform.position, transform.position) <= 7f) {
-                    ai._state = GhostAI.State.scatter;
-                }
-
-                if (ai.dead) {
+                Vector2 pinkyTargetTemp = 4 * ai.move2vec(pacManMove._dir);
+                pinkyTarget.transform.position = pacMan.transform.position + new Vector3(pinkyTargetTemp.x, pinkyTargetTemp.y, 0);
+                ai.target = pinkyTarget;
+                if (ai.dead)
+                {
                     ai._state = GhostAI.State.entering;
-                } else if (ai.fleeing) {
+                }
+                else if (ai.fleeing)
+                {
                     ai._state = GhostAI.State.fleeing;
                 }
                 break;
 
             case GhostAI.State.fleeing:
-                if (ai.dead) {
+                if (ai.dead)
+                {
                     ai._state = GhostAI.State.entering;
                     ai.fleeing = false;
-                } else if (!ai.fleeing) {
+                }
+                else if (!ai.fleeing)
+                {
                     ai._state = GhostAI.State.active;
                 }
                 break;
 
             case GhostAI.State.leaving:
-                if (gate.transform.position.y + 0.5f < gameObject.transform.position.y) {
+                if (gate.transform.position.y + 0.5f < gameObject.transform.position.y)
+                {
                     ai._state = GhostAI.State.active;
-                }
-                break;
-
-            case GhostAI.State.scatter:
-                if (Vector3.Distance(ai.scatterTarget.transform.position, transform.position) <= 4.5f) {
-                    ai._state = GhostAI.State.active;
-                }
-
-                if (ai.dead) {
-                    ai._state = GhostAI.State.entering;
-                } else if (ai.fleeing) {
-                    ai._state = GhostAI.State.fleeing;
                 }
                 break;
         }

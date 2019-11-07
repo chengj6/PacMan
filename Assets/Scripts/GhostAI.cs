@@ -130,10 +130,6 @@ public class GhostAI : MonoBehaviour {
     private void Awake()
     {
         startPos = this.gameObject.transform.position;
-        if (ghostID == 4)
-        {
-            scatterTarget = GameObject.Find("Clyde Target");
-        }
     }
 
     void Start () {
@@ -158,9 +154,8 @@ public class GhostAI : MonoBehaviour {
     /// 
     /// </summary>
 	void Update () {
-        if (ghostID == 4) {
+        if (ghostID == 2) {
             print(ghostID + " " + _state);
-            Debug.Log("turnTimeout: " + turnTimeout);
         }
         Vector2 oppDir = new Vector2(-currDir.x, -currDir.y);
         if (turnTimeout) {
@@ -184,7 +179,7 @@ public class GhostAI : MonoBehaviour {
 				    gameObject.GetComponent<Movement> ().MSpeed = 5f;
                     dead = false;
 
-                    if (ghostID == 4) { _state = State.leaving; }
+                    if (ghostID == 2) { _state = State.leaving; }
 
                 // etc.
 			    }
@@ -203,7 +198,6 @@ public class GhostAI : MonoBehaviour {
                 break;
 
 		    case(State.active):
-                target = pacMan;
                 Vector2 moveDir = PathFinding();
                 while (moveDir == oppDir) {
                     moveDir = RandomMove();
@@ -246,7 +240,6 @@ public class GhostAI : MonoBehaviour {
                 break;
 
             case State.scatter:
-                target = scatterTarget;
                 Vector2 scatterDir = PathFinding();
                 while (scatterDir == oppDir) {
                     scatterDir = RandomMove();
@@ -289,6 +282,17 @@ public class GhostAI : MonoBehaviour {
         List<Node> open = new List<Node>();
         List<Node> closed = new List<Node>();
         Vector2 goal = new Vector2(Mathf.RoundToInt(target.transform.position.x), Mathf.RoundToInt(-1 * target.transform.position.y));
+        if (goal.y < 0) {
+            goal.y = 0;
+        } else if (goal.y >= move.Map.Length) {
+            goal.y = move.Map.Length - 1;
+        }
+
+        if (goal.x < 0) {
+            goal.x = 0;
+        } else if (goal.x >= move.Map[0].Length) { 
+            goal.x = move.Map[0].Length - 1;
+        }
         Node goalNode = null;
 
         Vector2 startPos = new Vector2(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(-1 * transform.position.y));
@@ -366,6 +370,22 @@ public class GhostAI : MonoBehaviour {
             {
                 move._dir = Movement.Direction.up;
             }
+        }
+    }
+
+    public Vector2 move2vec(Movement.Direction direction)
+    {
+        switch (direction) {
+            case Movement.Direction.up:
+                return new Vector2(0, 1);
+            case Movement.Direction.down:
+                return new Vector2(0, -1);
+            case Movement.Direction.right:
+                return new Vector2(1, 0);
+            case Movement.Direction.left:
+                return new Vector2(-1, 0);
+            default:
+                return Vector2.zero;
         }
     }
 
