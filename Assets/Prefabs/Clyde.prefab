@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 114019861887486414}
   - component: {fileID: 114307779551628464}
   - component: {fileID: 58018240408972120}
+  - component: {fileID: -5963377693749953773}
   m_Layer: 0
   m_Name: Clyde
   m_TagString: ghost
@@ -131,7 +132,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ghostID: 4
-  releaseTime: 8
+  ghostMode: 0
+  releaseTime: 0
   waitTime: 0
   range: 0
   dead: 0
@@ -143,6 +145,7 @@ MonoBehaviour:
   - 0
   - 0
   target: {fileID: 0}
+  scatterTarget: {fileID: 0}
   chooseDirection: 1
   choices: 
   choice: 0
@@ -163,3 +166,15 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.08
+--- !u!114 &-5963377693749953773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1225471690446594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b004848d2fa1e53408306a916e00ddb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

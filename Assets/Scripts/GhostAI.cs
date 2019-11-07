@@ -93,6 +93,7 @@ public class GhostAI : MonoBehaviour {
 	public GameObject target;
 	GameObject gate;
     GameObject pacMan;
+    public GameObject scatterTarget;
 
 	public bool chooseDirection = true;
 	public int[] choices ;
@@ -128,7 +129,10 @@ public class GhostAI : MonoBehaviour {
     private void Awake()
     {
         startPos = this.gameObject.transform.position;
-
+        if (ghostID == 4)
+        {
+            scatterTarget = GameObject.Find("Clyde Target");
+        }
     }
 
     void Start () {
@@ -166,7 +170,7 @@ public class GhostAI : MonoBehaviour {
 				    gameObject.GetComponent<Movement> ().MSpeed = 5f;
                     dead = false;
 
-                    if (ghostID == 1) { _state = State.leaving; }
+                    if (ghostID == 4) { _state = State.leaving; }
 
                 // etc.
 			    }
@@ -222,6 +226,14 @@ public class GhostAI : MonoBehaviour {
                     turnTimeout += 1;
                 }
                 break;
+
+            case State.scatter:
+                Vector2 oppDir = new Vector2(-currDir.x, -currDir.y);
+                target = scatterTarget;
+                Vector2 scatterDir = PathFinding();
+                currDir = scatterDir;
+                vec2move(scatterDir);
+                break;
 		}
 
 
@@ -253,7 +265,7 @@ public class GhostAI : MonoBehaviour {
     {
         List<Node> open = new List<Node>();
         List<Node> closed = new List<Node>();
-        Vector2 goal = new Vector2(Mathf.RoundToInt(pacMan.transform.position.x), Mathf.RoundToInt(-1 * pacMan.transform.position.y));
+        Vector2 goal = new Vector2(Mathf.RoundToInt(target.transform.position.x), Mathf.RoundToInt(-1 * target.transform.position.y));
         Node goalNode = null;
 
         Vector2 startPos = new Vector2(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(-1 * transform.position.y));
@@ -278,7 +290,7 @@ public class GhostAI : MonoBehaviour {
             for (int i = 0; i < 4; i++)
             {
                 Vector2 pos = q.pos + num2vec(i);
-                if (move.Map[(int)pos.y][(int)pos.x] != '-' && move.Map[(int)pos.y][(int)pos.x] != '#')
+                if ((pos.y >= 0 && pos.y < move.Map.Length && pos.x >= 0 && pos.x < move.Map[0].Length) && move.Map[(int)pos.y][(int)pos.x] != '-' && move.Map[(int)pos.y][(int)pos.x] != '#')
                 {
                     successors.Add(new Node(-1, pos, q));
                 }
