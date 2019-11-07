@@ -51,6 +51,7 @@ public class GhostAI : MonoBehaviour {
     private Vector3 startPos;
     private bool[] dirs = new bool[4];
 	private bool[] prevDirs = new bool[4];
+    private Vector2 currDir = Vector2.zero;
 
 	public float releaseTime = 0f;          // This could be a tunable number
 	private float releaseTimeReset = 0f;
@@ -121,6 +122,8 @@ public class GhostAI : MonoBehaviour {
         }
     }
 
+    int turnTimeout = 0;
+
     // Use this for initialization
     private void Awake()
     {
@@ -148,86 +151,125 @@ public class GhostAI : MonoBehaviour {
     /// 
     /// </summary>
 	void Update () {
-        print(ghostID + " " + _state);
+        //print(ghostID + " " + _state);
 		switch (_state) {
-		case(State.waiting):
+		    case(State.waiting):
 
-            // below is some sample code showing how you deal with animations, etc.
-			move._dir = Movement.Direction.still;
-			if (releaseTime <= 0f) {
-				chooseDirection = true;
-				gameObject.GetComponent<Animator>().SetBool("Dead", false);
-				gameObject.GetComponent<Animator>().SetBool("Running", false);
-				gameObject.GetComponent<Animator>().SetInteger ("Direction", 0);
-				gameObject.GetComponent<Movement> ().MSpeed = 5f;
-                dead = false;
+                // below is some sample code showing how you deal with animations, etc.
+			    move._dir = Movement.Direction.still;
+			    if (releaseTime <= 0f) {
+				    chooseDirection = true;
+				    gameObject.GetComponent<Animator>().SetBool("Dead", false);
+				    gameObject.GetComponent<Animator>().SetBool("Running", false);
+				    gameObject.GetComponent<Animator>().SetInteger ("Direction", 0);
+				    gameObject.GetComponent<Movement> ().MSpeed = 5f;
+                    dead = false;
 
-                _state = State.leaving;
+                    _state = State.leaving;
 
                 // etc.
-			}
-			gameObject.GetComponent<Animator>().SetBool("Dead", false);
-			gameObject.GetComponent<Animator>().SetBool("Running", false);
-			gameObject.GetComponent<Animator>().SetInteger ("Direction", 0);
-			gameObject.GetComponent<Movement> ().MSpeed = 5f;
-			releaseTime -= Time.deltaTime;
-            // etc.
-			break;
+			    }
+			    gameObject.GetComponent<Animator>().SetBool("Dead", false);
+			    gameObject.GetComponent<Animator>().SetBool("Running", false);
+			    gameObject.GetComponent<Animator>().SetInteger ("Direction", 0);
+			    gameObject.GetComponent<Movement> ().MSpeed = 5f;
+			    releaseTime -= Time.deltaTime;
+                // etc.
+			    break;
+    
 
-
-		case(State.leaving):
-            target = gate;
-            if (target.transform.position.y + 0.5f < gameObject.transform.position.y)
-            {
-                _state = State.active;
-            }
-            else
-            {
-                Seek();
+		    case(State.leaving):
+                target = gate;
                 if (target.transform.position.y + 0.5f < gameObject.transform.position.y)
                 {
                     _state = State.active;
                 }
-            }
-            break;
-		case(State.active):
-            if (dead)
-            {
-                // etc.
-                // most of your AI code will be placed here!
-                restart();
-            }
-            else
-            {
-                target = pacMan;
-                PathFinding();
-            }
-            break;
-		case State.entering:
+                else
+                {
+                    Seek();
+                    if (target.transform.position.y + 0.5f < gameObject.transform.position.y)
+                    {
+                        _state = State.active;
+                    }
+                }
+                break;
+		    case(State.active):
+                if (dead)
+                {
+                    // etc.
+                    // most of your AI code will be placed here!
+                    restart();
+                }
+                else
+                {
+                    target = pacMan;
+                    Vector2 moveDir = PathFinding();
+                    currDir = moveDir;
+                    vec2move(moveDir);
+                }
+                break;
+		    case State.entering:
 
-            // Leaving this code in here for you.
-			move._dir = Movement.Direction.still;
+                // Leaving this code in here for you.
+			    move._dir = Movement.Direction.still;
 
-			if (transform.position.x < 13.48f || transform.position.x > 13.52) {
-				//print ("GOING LEFT OR RIGHT");
-				transform.position = Vector3.Lerp (transform.position, new Vector3 (13.5f, transform.position.y, transform.position.z), 3f * Time.deltaTime);
-			} else if (transform.position.y > -13.99f || transform.position.y < -14.01f) {
-				gameObject.GetComponent<Animator>().SetInteger ("Direction", 2);
-				transform.position = Vector3.Lerp (transform.position, new Vector3 (transform.position.x, -14f, transform.position.z), 3f * Time.deltaTime);
-			} else {
-				fleeing = false;
-				dead = false;
-				gameObject.GetComponent<Animator>().SetBool("Running", true);
-				_state = State.waiting;
-			}
+			    if (transform.position.x < 13.48f || transform.position.x > 13.52) {
+				    //print ("GOING LEFT OR RIGHT");
+				    transform.position = Vector3.Lerp (transform.position, new Vector3 (13.5f, transform.position.y, transform.position.z), 3f * Time.deltaTime);
+			    } else if (transform.position.y > -13.99f || transform.position.y < -14.01f) {
+				    gameObject.GetComponent<Animator>().SetInteger ("Direction", 2);
+			   	    transform.position = Vector3.Lerp (transform.position, new Vector3 (transform.position.x, -14f, transform.position.z), 3f * Time.deltaTime);
+			    } else {
+				    fleeing = false;
+				    dead = false;
+				    gameObject.GetComponent<Animator>().SetBool("Running", true);
+				    _state = State.waiting;
+			    }
 
-            break;
+                break;
+
+
+            case State.fleeing:
+                if (turnTimeout >= 16) {
+                    Vector2 direction = RandomMove();
+                    currDir = direction;
+                    turnTimeout = 0;
+                    vec2move(direction);
+                } else {
+                    turnTimeout += 1;
+                }
+                break;
 		}
+
+        if (fleeing && ghostID == 1)
+        {
+            _state = State.fleeing;
+        }
 	}
 
     // Utility routines
+    Vector2 RandomMove()
+    {
+        List<Vector2> validMoves = new List<Vector2>();
+        Vector2 oppDir = new Vector2(-currDir.x, -currDir.y);
+        for (int i = 0; i < 4; i++)
+        {
+            if (move.checkDirectionClear(num2vec(i)) && num2vec(i) != oppDir)
+            {
+                validMoves.Add(num2vec(i));
+            }
+        }
 
-    void PathFinding()
+        if (validMoves.Count > 1)
+        {
+            int selection = Random.Range(0, validMoves.Count);
+            return validMoves[selection];
+        }
+        
+        return validMoves[0];
+    }
+
+    Vector2 PathFinding()
     {
         List<Node> open = new List<Node>();
         List<Node> closed = new List<Node>();
@@ -288,24 +330,9 @@ public class GhostAI : MonoBehaviour {
         {
             goalNode = goalNode.parent;
         }
-        
-        Vector2 direction = goalNode.pos - startPos;
 
-        if (direction.Equals(new Vector2(0, 1))) {
-            move._dir = Movement.Direction.down;
-        } else if (direction.Equals(new Vector2(0, -1))) {
-            move._dir = Movement.Direction.up;
-        } else if (direction.Equals(new Vector2(1, 0))) {
-            move._dir = Movement.Direction.right;
-        } else if (direction.Equals(new Vector2(-1, 0))) {
-            move._dir = Movement.Direction.left;
-        }
-    }
-
-    bool ValidMove(Vector2 newPos)
-    {
-        
-        return false;
+        Vector2 result = new Vector2(goalNode.pos.x - startPos.x, -(goalNode.pos.y - startPos.y));
+        return result;
     }
 
     void Seek()
@@ -324,6 +351,26 @@ public class GhostAI : MonoBehaviour {
             {
                 move._dir = Movement.Direction.up;
             }
+        }
+    }
+
+    void vec2move(Vector2 direction)
+    {
+        if (direction.Equals(new Vector2(0, 1)))
+        {
+            move._dir = Movement.Direction.up;
+        }
+        else if (direction.Equals(new Vector2(0, -1)))
+        {
+            move._dir = Movement.Direction.down;
+        }
+        else if (direction.Equals(new Vector2(1, 0)))
+        {
+            move._dir = Movement.Direction.right;
+        }
+        else if (direction.Equals(new Vector2(-1, 0)))
+        {
+            move._dir = Movement.Direction.left;
         }
     }
 
@@ -348,7 +395,7 @@ public class GhostAI : MonoBehaviour {
         }
     }
 
-        Vector2 num2vec(int n){
+    Vector2 num2vec(int n){
         switch (n)
         {
             case 0:
