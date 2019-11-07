@@ -52,6 +52,7 @@ public class GhostAI : MonoBehaviour {
     private bool[] dirs = new bool[4];
 	private bool[] prevDirs = new bool[4];
     private Vector2 currDir = Vector2.zero;
+    private Vector2 currPos;
 
 	public float releaseTime = 0f;          // This could be a tunable number
 	private float releaseTimeReset = 0f;
@@ -123,7 +124,7 @@ public class GhostAI : MonoBehaviour {
         }
     }
 
-    int turnTimeout = 0;
+    bool turnTimeout = false;
 
     // Use this for initialization
     private void Awake()
@@ -140,7 +141,8 @@ public class GhostAI : MonoBehaviour {
 		gate = GameObject.Find("Gate(Clone)");
 		pacMan = GameObject.Find("PacMan(Clone)") ? GameObject.Find("PacMan(Clone)") : GameObject.Find("PacMan 1(Clone)");
 		releaseTimeReset = releaseTime;
-	}
+        currPos = new Vector2(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(-1 * transform.position.y));
+    }
 
 	public void restart(){
 		releaseTime = releaseTimeReset;
@@ -156,7 +158,19 @@ public class GhostAI : MonoBehaviour {
     /// 
     /// </summary>
 	void Update () {
-        print(ghostID + " " + _state);
+        if (ghostID == 4) {
+            print(ghostID + " " + _state);
+            Debug.Log("turnTimeout: " + turnTimeout);
+        }
+        Vector2 oppDir = new Vector2(-currDir.x, -currDir.y);
+        if (turnTimeout) {
+            if (currPos.x != Mathf.RoundToInt(transform.position.x) || 
+                currPos.y != Mathf.RoundToInt(-1 * transform.position.y)) {
+                turnTimeout = false;
+            } else {
+                return;
+            }
+        }
 		switch (_state) {
 		    case(State.waiting):
 
@@ -191,7 +205,13 @@ public class GhostAI : MonoBehaviour {
 		    case(State.active):
                 target = pacMan;
                 Vector2 moveDir = PathFinding();
-                currDir = moveDir;
+                while (moveDir == oppDir) {
+                    moveDir = RandomMove();
+                }
+                if (currDir != moveDir) {
+                    turnTimeout = true;
+                    currDir = moveDir;
+                }
                 vec2move(moveDir);
                 break;
 
@@ -217,27 +237,30 @@ public class GhostAI : MonoBehaviour {
 
 
             case State.fleeing:
-                if (turnTimeout >= 16) {
-                    Vector2 direction = RandomMove();
+               Vector2 direction = RandomMove();
+               if (currDir != direction) {
                     currDir = direction;
-                    turnTimeout = 0;
-                    vec2move(direction);
-                } else {
-                    turnTimeout += 1;
+                    turnTimeout = true;
                 }
+               vec2move(direction);
                 break;
 
             case State.scatter:
-                Vector2 oppDir = new Vector2(-currDir.x, -currDir.y);
                 target = scatterTarget;
                 Vector2 scatterDir = PathFinding();
-                currDir = scatterDir;
+                while (scatterDir == oppDir) {
+                    scatterDir = RandomMove();
+                }
+                if (currDir != scatterDir) {
+                    currDir = scatterDir;
+                    turnTimeout = true;
+                }
                 vec2move(scatterDir);
                 break;
 		}
 
-
-	}
+        currPos = new Vector2(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(-1 * transform.position.y));
+    }
 
     // Utility routines
     Vector2 RandomMove()
