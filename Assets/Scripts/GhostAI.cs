@@ -92,7 +92,7 @@ public class GhostAI : MonoBehaviour {
     // This will be PacMan when chasing, or Gate, when leaving the Pit
 	public GameObject target;
 	GameObject gate;
-	GameObject pacMan;
+    GameObject pacMan;
 
 	public bool chooseDirection = true;
 	public int[] choices ;
@@ -128,6 +128,7 @@ public class GhostAI : MonoBehaviour {
     private void Awake()
     {
         startPos = this.gameObject.transform.position;
+
     }
 
     void Start () {
@@ -151,7 +152,7 @@ public class GhostAI : MonoBehaviour {
     /// 
     /// </summary>
 	void Update () {
-        //print(ghostID + " " + _state);
+        print(ghostID + " " + _state);
 		switch (_state) {
 		    case(State.waiting):
 
@@ -165,7 +166,7 @@ public class GhostAI : MonoBehaviour {
 				    gameObject.GetComponent<Movement> ().MSpeed = 5f;
                     dead = false;
 
-                    _state = State.leaving;
+                    if (ghostID == 1) { _state = State.leaving; }
 
                 // etc.
 			    }
@@ -180,39 +181,21 @@ public class GhostAI : MonoBehaviour {
 
 		    case(State.leaving):
                 target = gate;
-                if (target.transform.position.y + 0.5f < gameObject.transform.position.y)
-                {
-                    _state = State.active;
-                }
-                else
-                {
-                    Seek();
-                    if (target.transform.position.y + 0.5f < gameObject.transform.position.y)
-                    {
-                        _state = State.active;
-                    }
-                }
+                Seek();
                 break;
+
 		    case(State.active):
-                if (dead)
-                {
-                    // etc.
-                    // most of your AI code will be placed here!
-                    restart();
-                }
-                else
-                {
-                    target = pacMan;
-                    Vector2 moveDir = PathFinding();
-                    currDir = moveDir;
-                    vec2move(moveDir);
-                }
+                target = pacMan;
+                Vector2 moveDir = PathFinding();
+                currDir = moveDir;
+                vec2move(moveDir);
                 break;
+
 		    case State.entering:
 
                 // Leaving this code in here for you.
 			    move._dir = Movement.Direction.still;
-
+                
 			    if (transform.position.x < 13.48f || transform.position.x > 13.52) {
 				    //print ("GOING LEFT OR RIGHT");
 				    transform.position = Vector3.Lerp (transform.position, new Vector3 (13.5f, transform.position.y, transform.position.z), 3f * Time.deltaTime);
@@ -241,10 +224,7 @@ public class GhostAI : MonoBehaviour {
                 break;
 		}
 
-        if (fleeing && ghostID == 1)
-        {
-            _state = State.fleeing;
-        }
+
 	}
 
     // Utility routines
