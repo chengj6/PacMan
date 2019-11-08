@@ -98,8 +98,12 @@ public class Movement : MonoBehaviour {
                 }
                 return false;
             }
-		} else if(direction.x == 1 && direction.y == 0){
-			if (x == Map [0].Length - 1) {
+            if (x >= Map[0].Length - 1f)
+            {
+                transform.position = new Vector3(1, transform.position.y, transform.position.z);
+            }
+        } else if(direction.x == 1 && direction.y == 0){
+			if (x >= Map [0].Length - 1f) {
 				transform.position = new Vector3 (1, transform.position.y, transform.position.z);
 			}
 
@@ -113,7 +117,11 @@ public class Movement : MonoBehaviour {
             {
 				return false;
 			}
-		} else if(direction.x == -1 && direction.y == 0){
+            if (x >= Map[0].Length - 1f)
+            {
+                transform.position = new Vector3(1, transform.position.y, transform.position.z);
+            }
+        } else if(direction.x == -1 && direction.y == 0){
 			if (x == 0) {
 				transform.position = new Vector3 (Map [0].Length - 2, transform.position.y, transform.position.z);
 			}
