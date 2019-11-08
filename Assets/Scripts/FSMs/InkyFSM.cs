@@ -27,7 +27,7 @@ public class InkyFSM : MonoBehaviour
         inkyTarget = new GameObject("inky Target");
         line = gameObject.GetComponent<LineRenderer>();
         scatterTarget = new GameObject("Inky Target");
-        scatterTarget.transform.position = new Vector3(29, 29, 2);
+        scatterTarget.transform.position = new Vector3(3, 29, 2);
     }
 
     // Update is called once per frame
@@ -41,6 +41,7 @@ public class InkyFSM : MonoBehaviour
                 if (dist <= 7)
                 {
                     ai._state = GhostAI.State.scatter;
+                    ai.target = scatterTarget;
                     break;
                 }
                 inkyTarget.transform.position = pinky.transform.position;
