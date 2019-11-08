@@ -198,7 +198,7 @@ public class GhostAI : MonoBehaviour {
                 break;
 
 		    case(State.active):
-                Vector2 moveDir = PathFinding();
+                Vector2 moveDir = PathFinding(target.transform.position);
                 while (moveDir == oppDir) {
                     moveDir = RandomMove();
                 }
@@ -213,20 +213,26 @@ public class GhostAI : MonoBehaviour {
 
                 // Leaving this code in here for you.
 			    move._dir = Movement.Direction.still;
-                
-			    if (transform.position.x < 13.48f || transform.position.x > 13.52) {
-				    //print ("GOING LEFT OR RIGHT");
-				    transform.position = Vector3.Lerp (transform.position, new Vector3 (13.5f, transform.position.y, transform.position.z), 3f * Time.deltaTime);
-			    } else if (transform.position.y > -13.99f || transform.position.y < -14.01f) {
-				    gameObject.GetComponent<Animator>().SetInteger ("Direction", 2);
-			   	    transform.position = Vector3.Lerp (transform.position, new Vector3 (transform.position.x, -14f, transform.position.z), 3f * Time.deltaTime);
-			    } else {
-				    fleeing = false;
-				    dead = false;
-				    gameObject.GetComponent<Animator>().SetBool("Running", true);
-				    _state = State.waiting;
-			    }
 
+                Vector2 moveDir2 = PathFinding(startPos);
+                while (moveDir2 == oppDir)
+                {
+                    moveDir2 = RandomMove();
+                }
+                if (currDir != moveDir2)
+                {
+                    turnTimeout = true;
+                    currDir = moveDir2;
+                }
+                vec2move(moveDir2);
+
+                if (transform.position == startPos)
+                {
+                    fleeing = false;
+                    dead = false;
+                    gameObject.GetComponent<Animator>().SetBool("Running", true);
+                    _state = State.waiting;
+                }
                 break;
 
 
@@ -240,7 +246,7 @@ public class GhostAI : MonoBehaviour {
                 break;
 
             case State.scatter:
-                Vector2 scatterDir = PathFinding();
+                Vector2 scatterDir = PathFinding(target.transform.position);
                 while (scatterDir == oppDir) {
                     scatterDir = RandomMove();
                 }
@@ -277,11 +283,11 @@ public class GhostAI : MonoBehaviour {
         return validMoves[0];
     }
 
-    Vector2 PathFinding()
+    Vector2 PathFinding(Vector3 moveTo)
     {
         List<Node> open = new List<Node>();
         List<Node> closed = new List<Node>();
-        Vector2 goal = new Vector2(Mathf.RoundToInt(target.transform.position.x), Mathf.RoundToInt(-1 * target.transform.position.y));
+        Vector2 goal = new Vector2(Mathf.RoundToInt(moveTo.x), Mathf.RoundToInt(-1 * moveTo.y));
         if (goal.y < 0) {
             goal.y = 0;
         } else if (goal.y >= move.Map.Length) {
@@ -295,8 +301,8 @@ public class GhostAI : MonoBehaviour {
         }
         Node goalNode = null;
 
-        Vector2 startPos = new Vector2(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(-1 * transform.position.y));
-        Node start = new Node(0, startPos, null);
+        Vector2 startingPosition = new Vector2(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(-1 * transform.position.y));
+        Node start = new Node(0, startingPosition, null);
         open.Add(start);
 
         while(open.Any())
@@ -317,9 +323,12 @@ public class GhostAI : MonoBehaviour {
             for (int i = 0; i < 4; i++)
             {
                 Vector2 pos = q.pos + num2vec(i);
-                if ((pos.y >= 0 && pos.y < move.Map.Length && pos.x >= 0 && pos.x < move.Map[0].Length) && move.Map[(int)pos.y][(int)pos.x] != '-' && move.Map[(int)pos.y][(int)pos.x] != '#')
-                {
-                    successors.Add(new Node(-1, pos, q));
+                if ((pos.y >= 0 && (int)pos.y < move.Map.Length && pos.x >= 0 && (int)pos.x < move.Map[0].Length))
+                { 
+                    if(move.Map[(int)pos.y][(int)pos.x] != '-' && move.Map[(int)pos.y][(int)pos.x] != '#')
+                    {
+                        successors.Add(new Node(-1, pos, q));
+                    }
                 }
             }
             
@@ -350,7 +359,7 @@ public class GhostAI : MonoBehaviour {
             goalNode = goalNode.parent;
         }
 
-        Vector2 result = new Vector2(goalNode.pos.x - startPos.x, -(goalNode.pos.y - startPos.y));
+        Vector2 result = new Vector2(goalNode.pos.x - startingPosition.x, -(goalNode.pos.y - startingPosition.y));
         return result;
     }
 
