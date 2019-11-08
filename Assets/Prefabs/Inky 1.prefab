@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 114707043562915916}
   - component: {fileID: 114364400385463786}
   - component: {fileID: 58904341950858544}
+  - component: {fileID: 6888553077405298541}
   m_Layer: 0
   m_Name: Inky 1
   m_TagString: ghost
@@ -131,6 +132,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ghostID: 3
+  ghostMode: 0
   releaseTime: 4
   waitTime: 0
   range: 0
@@ -143,6 +145,7 @@ MonoBehaviour:
   - 0
   - 0
   target: {fileID: 0}
+  scatterTarget: {fileID: 0}
   chooseDirection: 1
   choices: 
   choice: 0
@@ -163,3 +166,15 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.08
+--- !u!114 &6888553077405298541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1093140176201252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 827d289a257d99143b33455586e56541, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -349,11 +349,12 @@ public class GhostAI : MonoBehaviour {
                 if (closedMatch != null && closedMatch.f < successor.f) { continue; }
                 open.Add(successor);
             }
-            if (goalNode != null) { break; }
+            if (goalNode != null)
+            {
+                print(goalNode); break; }
 
             closed.Add(q);
         }
-
         while (goalNode != null && !goalNode.parent.Equals(start))
         {
             goalNode = goalNode.parent;
