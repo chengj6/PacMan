@@ -214,6 +214,7 @@ public class GhostAI : MonoBehaviour {
 
                 // Leaving this code in here for you.
 			    move._dir = Movement.Direction.still;
+                dead = true;
 
                 target = gate;
                 Vector2 moveDir2 = PathFinding();

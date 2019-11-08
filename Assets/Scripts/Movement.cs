@@ -32,6 +32,19 @@ public class Movement : MonoBehaviour {
 		string text = inputMap.text;
 		string[] lines = text.Split('\n');
 		Map = lines;
+        for(int i = 0; i < Map.Length; i++)
+        {
+            if(Map[i].Length == 29)
+            {
+                string temp = "";
+                for(int j = 0; j < 28; j++)
+                {
+                    temp += Map[i][j];
+                }
+                Map[i] = temp;
+            }
+        }
+        print(Map[0].Length);
 		animator = GetComponent<Animator> ();
 	}
 	
