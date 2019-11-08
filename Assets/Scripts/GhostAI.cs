@@ -179,10 +179,11 @@ public class GhostAI : MonoBehaviour {
 				    gameObject.GetComponent<Movement> ().MSpeed = 5f;
                     dead = false;
 
-                    if (ghostID == 2) { _state = State.leaving; }
+                    if (ghostID == 2 || ghostID == 3) { _state = State.leaving; }
+                    //_state = State.leaving;
 
-                // etc.
-			    }
+                    // etc.
+                }
 			    gameObject.GetComponent<Animator>().SetBool("Dead", false);
 			    gameObject.GetComponent<Animator>().SetBool("Running", false);
 			    gameObject.GetComponent<Animator>().SetInteger ("Direction", 0);
@@ -198,7 +199,7 @@ public class GhostAI : MonoBehaviour {
                 break;
 
 		    case(State.active):
-                Vector2 moveDir = PathFinding(target.transform.position);
+                Vector2 moveDir = PathFinding();
                 while (moveDir == oppDir) {
                     moveDir = RandomMove();
                 }
@@ -214,7 +215,8 @@ public class GhostAI : MonoBehaviour {
                 // Leaving this code in here for you.
 			    move._dir = Movement.Direction.still;
 
-                Vector2 moveDir2 = PathFinding(startPos);
+                target = gate;
+                Vector2 moveDir2 = PathFinding();
                 while (moveDir2 == oppDir)
                 {
                     moveDir2 = RandomMove();
@@ -246,7 +248,7 @@ public class GhostAI : MonoBehaviour {
                 break;
 
             case State.scatter:
-                Vector2 scatterDir = PathFinding(target.transform.position);
+                Vector2 scatterDir = PathFinding();
                 while (scatterDir == oppDir) {
                     scatterDir = RandomMove();
                 }
@@ -283,11 +285,11 @@ public class GhostAI : MonoBehaviour {
         return validMoves[0];
     }
 
-    Vector2 PathFinding(Vector3 moveTo)
+    Vector2 PathFinding()
     {
         List<Node> open = new List<Node>();
         List<Node> closed = new List<Node>();
-        Vector2 goal = new Vector2(Mathf.RoundToInt(moveTo.x), Mathf.RoundToInt(-1 * moveTo.y));
+        Vector2 goal = new Vector2(Mathf.RoundToInt(target.transform.position.x), Mathf.RoundToInt(-1 * target.transform.position.y));
         if (goal.y < 0) {
             goal.y = 0;
         } else if (goal.y >= move.Map.Length) {
@@ -301,8 +303,8 @@ public class GhostAI : MonoBehaviour {
         }
         Node goalNode = null;
 
-        Vector2 startingPosition = new Vector2(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(-1 * transform.position.y));
-        Node start = new Node(0, startingPosition, null);
+        Vector2 startPos = new Vector2(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(-1 * transform.position.y));
+        Node start = new Node(0, startPos, null);
         open.Add(start);
 
         while(open.Any())
@@ -323,12 +325,9 @@ public class GhostAI : MonoBehaviour {
             for (int i = 0; i < 4; i++)
             {
                 Vector2 pos = q.pos + num2vec(i);
-                if ((pos.y >= 0 && (int)pos.y < move.Map.Length && pos.x >= 0 && (int)pos.x < move.Map[0].Length))
-                { 
-                    if(move.Map[(int)pos.y][(int)pos.x] != '-' && move.Map[(int)pos.y][(int)pos.x] != '#')
-                    {
-                        successors.Add(new Node(-1, pos, q));
-                    }
+                if ((pos.y >= 0 && pos.y < move.Map.Length && pos.x >= 0 && pos.x < move.Map[0].Length) && move.Map[(int)pos.y][(int)pos.x] != '-' && move.Map[(int)pos.y][(int)pos.x] != '#')
+                {
+                    successors.Add(new Node(-1, pos, q));
                 }
             }
             
@@ -359,7 +358,7 @@ public class GhostAI : MonoBehaviour {
             goalNode = goalNode.parent;
         }
 
-        Vector2 result = new Vector2(goalNode.pos.x - startingPosition.x, -(goalNode.pos.y - startingPosition.y));
+        Vector2 result = new Vector2(goalNode.pos.x - startPos.x, -(goalNode.pos.y - startPos.y));
         return result;
     }
 
