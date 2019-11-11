@@ -168,9 +168,9 @@ public class GhostAI : MonoBehaviour {
         }
 		switch (_state) {
 		    case(State.waiting):
-
+                gameObject.GetComponent<CircleCollider2D>().enabled = true;
                 // below is some sample code showing how you deal with animations, etc.
-			    move._dir = Movement.Direction.still;
+                move._dir = Movement.Direction.still;
 			    if (releaseTime <= 0f) {
 				    chooseDirection = true;
 				    gameObject.GetComponent<Animator>().SetBool("Dead", false);
