@@ -175,11 +175,11 @@ public class GhostAI : MonoBehaviour {
 				    gameObject.GetComponent<Animator>().SetInteger ("Direction", 0);
 				    gameObject.GetComponent<Movement> ().MSpeed = 5f;
                     dead = false;
-                    if (ghostID == 2)
-                    {
-                        _state = State.leaving;
-                    }
-                    //_state = State.leaving;
+                    //if (ghostID == 2)
+                    //{
+                    //    _state = State.leaving;
+                    //}
+                    _state = State.leaving;
 
                     // etc.
                 }
