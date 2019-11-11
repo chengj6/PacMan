@@ -44,7 +44,7 @@ public class Movement : MonoBehaviour {
                 Map[i] = temp;
             }
         }
-        print(Map[0].Length);
+        //print(Map[0].Length);
 		animator = GetComponent<Animator> ();
 	}
 	

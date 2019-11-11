@@ -29,7 +29,8 @@ public class PinkyFSM : MonoBehaviour
         switch (ai._state)
         {
             case GhostAI.State.active:
-                Vector2 pinkyTargetTemp = 4 * ai.move2vec(pacManMove._dir);
+                Vector2 pinkyTargetTemp = ai.move2vec(pacManMove._dir);
+                print(pinkyTarget.transform.position);
                 pinkyTarget.transform.position = pacMan.transform.position + new Vector3(pinkyTargetTemp.x, pinkyTargetTemp.y, 0);
                 ai.target = pinkyTarget;
                 if (ai.dead)

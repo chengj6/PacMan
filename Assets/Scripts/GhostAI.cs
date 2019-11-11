@@ -154,7 +154,7 @@ public class GhostAI : MonoBehaviour {
     /// 
     /// </summary>
 	void Update () {
-        if (ghostID == 1) { print(ghostID + " " + _state); }
+        //print(ghostID + " " + _state);
         Vector2 oppDir = new Vector2(-currDir.x, -currDir.y);
         if (turnTimeout) {
             if (currPos.x != Mathf.RoundToInt(transform.position.x) || 
@@ -166,7 +166,6 @@ public class GhostAI : MonoBehaviour {
         }
 		switch (_state) {
 		    case(State.waiting):
-                gameObject.GetComponent<CircleCollider2D>().enabled = true;
                 // below is some sample code showing how you deal with animations, etc.
                 move._dir = Movement.Direction.still;
 			    if (releaseTime <= 0f) {
@@ -176,8 +175,10 @@ public class GhostAI : MonoBehaviour {
 				    gameObject.GetComponent<Animator>().SetInteger ("Direction", 0);
 				    gameObject.GetComponent<Movement> ().MSpeed = 5f;
                     dead = false;
-
-                    _state = State.leaving;
+                    if (ghostID == 2)
+                    {
+                        _state = State.leaving;
+                    }
                     //_state = State.leaving;
 
                     // etc.
@@ -223,19 +224,24 @@ public class GhostAI : MonoBehaviour {
                 }
                 vec2move(moveDir2);
 
-                if (transform.position == new Vector3(18, -12.5f, -2.0f))
+                //if (transform.position == new Vector3(18, -12.5f, -2.0f))
+                //{
+                //    dead = false;
+                //    gameObject.GetComponent<Animator>().SetBool("Running", true);
+                //    _state = State.waiting;
+                //}
+                if (gate.transform.position.y + 0.5f < gameObject.transform.position.y && gate.transform.position.x + 0.5 > gameObject.transform.position.x && gate.transform.position.x - 0.5 < gameObject.transform.position.x)
                 {
                     dead = false;
-                    gameObject.GetComponent<Animator>().SetBool("Running", true);
-                    _state = State.waiting;
+                    gameObject.GetComponent<CircleCollider2D>().enabled = true;
+                    restart();
                 }
-
-                if (transform.position == startPos)
-                {
-                    dead = false;
-                    gameObject.GetComponent<Animator>().SetBool("Running", true);
-                    _state = State.waiting;
-                }
+                //if (transform.position == startPos)
+                //{
+                //    dead = false;
+                //    gameObject.GetComponent<Animator>().SetBool("Running", true);
+                //    _state = State.waiting;
+                //}
                 break;
 
 
@@ -290,6 +296,10 @@ public class GhostAI : MonoBehaviour {
     {
         List<Node> open = new List<Node>();
         List<Node> closed = new List<Node>();
+        if (ghostID == 2)
+        {
+            print(target);
+        }
         Vector2 goal = new Vector2(Mathf.RoundToInt(target.transform.position.x), Mathf.RoundToInt(-1 * target.transform.position.y));
         if (goal.y < 0) {
             goal.y = 0;
