@@ -154,9 +154,7 @@ public class GhostAI : MonoBehaviour {
     /// 
     /// </summary>
 	void Update () {
-        if (ghostID == 2) {
-            print(ghostID + " " + _state);
-        }
+        if (ghostID == 1) { print(ghostID + " " + _state); }
         Vector2 oppDir = new Vector2(-currDir.x, -currDir.y);
         if (turnTimeout) {
             if (currPos.x != Mathf.RoundToInt(transform.position.x) || 
@@ -179,7 +177,7 @@ public class GhostAI : MonoBehaviour {
 				    gameObject.GetComponent<Movement> ().MSpeed = 5f;
                     dead = false;
 
-                    if (ghostID == 2 || ghostID == 3) { _state = State.leaving; }
+                    _state = State.leaving;
                     //_state = State.leaving;
 
                     // etc.
@@ -199,7 +197,7 @@ public class GhostAI : MonoBehaviour {
                 break;
 
 		    case(State.active):
-                Vector2 moveDir = PathFinding();
+                Vector2 moveDir = PathFinding(false);
                 while (moveDir == oppDir) {
                     moveDir = RandomMove();
                 }
@@ -213,15 +211,11 @@ public class GhostAI : MonoBehaviour {
 		    case State.entering:
 
                 // Leaving this code in here for you.
-			    move._dir = Movement.Direction.still;
                 dead = true;
+                fleeing = false;
 
                 target = gate;
-                Vector2 moveDir2 = PathFinding();
-                while (moveDir2 == oppDir)
-                {
-                    moveDir2 = RandomMove();
-                }
+                Vector2 moveDir2 = PathFinding(true);
                 if (currDir != moveDir2)
                 {
                     turnTimeout = true;
@@ -229,9 +223,15 @@ public class GhostAI : MonoBehaviour {
                 }
                 vec2move(moveDir2);
 
+                if (transform.position == new Vector3(18, -12.5f, -2.0f))
+                {
+                    dead = false;
+                    gameObject.GetComponent<Animator>().SetBool("Running", true);
+                    _state = State.waiting;
+                }
+
                 if (transform.position == startPos)
                 {
-                    fleeing = false;
                     dead = false;
                     gameObject.GetComponent<Animator>().SetBool("Running", true);
                     _state = State.waiting;
@@ -249,7 +249,7 @@ public class GhostAI : MonoBehaviour {
                 break;
 
             case State.scatter:
-                Vector2 scatterDir = PathFinding();
+                Vector2 scatterDir = PathFinding(false);
                 while (scatterDir == oppDir) {
                     scatterDir = RandomMove();
                 }
@@ -260,7 +260,7 @@ public class GhostAI : MonoBehaviour {
                 vec2move(scatterDir);
                 break;
 		}
-
+        
         currPos = new Vector2(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(-1 * transform.position.y));
     }
 
@@ -286,7 +286,7 @@ public class GhostAI : MonoBehaviour {
         return validMoves[0];
     }
 
-    Vector2 PathFinding()
+    Vector2 PathFinding(bool through_gate)
     {
         List<Node> open = new List<Node>();
         List<Node> closed = new List<Node>();
@@ -326,7 +326,7 @@ public class GhostAI : MonoBehaviour {
             for (int i = 0; i < 4; i++)
             {
                 Vector2 pos = q.pos + num2vec(i);
-                if ((pos.y >= 0 && pos.y < move.Map.Length && pos.x >= 0 && pos.x < move.Map[0].Length) && move.Map[(int)pos.y][(int)pos.x] != '-' && move.Map[(int)pos.y][(int)pos.x] != '#')
+                if (pos.y >= 0 && pos.y < move.Map.Length && pos.x >= 0 && pos.x < move.Map[0].Length && move.Map[(int)pos.y][(int)pos.x] != '-' && (move.Map[(int)pos.y][(int)pos.x] != '#' && !through_gate || through_gate))
                 {
                     successors.Add(new Node(-1, pos, q));
                 }
@@ -351,7 +351,8 @@ public class GhostAI : MonoBehaviour {
             }
             if (goalNode != null)
             {
-                print(goalNode); break; }
+                break;
+            }
 
             closed.Add(q);
         }
@@ -360,8 +361,12 @@ public class GhostAI : MonoBehaviour {
             goalNode = goalNode.parent;
         }
 
-        Vector2 result = new Vector2(goalNode.pos.x - startPos.x, -(goalNode.pos.y - startPos.y));
-        return result;
+        if (goalNode != null) {
+            Vector2 result = new Vector2(goalNode.pos.x - startPos.x, -(goalNode.pos.y - startPos.y));
+            return result;
+        } else {
+            return Vector2.zero;
+        }
     }
 
     void Seek()
@@ -380,6 +385,22 @@ public class GhostAI : MonoBehaviour {
             {
                 move._dir = Movement.Direction.up;
             }
+        }
+    }
+
+    void SeekReverse()
+    {
+        if (gameObject.transform.position.x < target.transform.position.x)
+        {
+            move._dir = Movement.Direction.right;
+        }
+        else if (gameObject.transform.position.x > target.transform.position.x + 0.5f)
+        {
+            move._dir = Movement.Direction.left;
+        }
+        else if (gameObject.transform.position.y > target.transform.position.y)
+        {
+            move._dir = Movement.Direction.down;
         }
     }
 
