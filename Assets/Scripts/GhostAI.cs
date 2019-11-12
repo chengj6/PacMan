@@ -154,7 +154,7 @@ public class GhostAI : MonoBehaviour {
     /// 
     /// </summary>
 	void Update () {
-        print(ghostID + ": " + _state);
+        if (ghostID == 3) { print(ghostID + ": " + _state); }
         Vector2 oppDir = new Vector2(-currDir.x, -currDir.y);
         if (turnTimeout) {
             if (currPos.x != Mathf.RoundToInt(transform.position.x) || 
@@ -177,7 +177,7 @@ public class GhostAI : MonoBehaviour {
 				    gameObject.GetComponent<Movement> ().MSpeed = 5f;
                     dead = false;
 
-                    _state = State.leaving;
+                    if (ghostID == 3 || ghostID == 1) { _state = State.leaving; }
                     //_state = State.leaving;
 
                     // etc.
@@ -205,6 +205,7 @@ public class GhostAI : MonoBehaviour {
                     turnTimeout = true;
                     currDir = moveDir;
                 }
+                if (ghostID == 3) { Debug.Log(moveDir); }
                 vec2move(moveDir);
                 break;
 
@@ -271,7 +272,7 @@ public class GhostAI : MonoBehaviour {
             int selection = Random.Range(0, validMoves.Count);
             return validMoves[selection];
         }
-        
+
         return validMoves[0];
     }
 
@@ -279,6 +280,10 @@ public class GhostAI : MonoBehaviour {
     {
         List<Node> open = new List<Node>();
         List<Node> closed = new List<Node>();
+        if (target == null)
+        {
+            return move2vec(move._dir);
+        }
         Vector2 goal = new Vector2(Mathf.RoundToInt(target.transform.position.x), Mathf.RoundToInt(-1 * target.transform.position.y));
         if (goal.y < 0) {
             goal.y = 0;
@@ -315,7 +320,10 @@ public class GhostAI : MonoBehaviour {
             for (int i = 0; i < 4; i++)
             {
                 Vector2 pos = q.pos + num2vec(i);
-                if ((pos.y >= 0 && pos.y < move.Map.Length && pos.x >= 0 && pos.x < move.Map[0].Length) && move.Map[(int)pos.y][(int)pos.x] != '-' && (move.Map[(int)pos.y][(int)pos.x] != '#' || entering))
+                if (pos.y >= 0 && pos.y < move.Map.Length && 
+                    pos.x >= 0 && pos.x < move.Map[0].Length && 
+                    move.Map[(int)pos.y][(int)pos.x] != '-' && 
+                    (move.Map[(int)pos.y][(int)pos.x] != '#' || entering))
                 {
                     successors.Add(new Node(-1, pos, q));
                 }
@@ -350,6 +358,7 @@ public class GhostAI : MonoBehaviour {
             goalNode = goalNode.parent;
         }
 
+        if (goalNode == null) { return RandomMove(); }
         Vector2 result = new Vector2(goalNode.pos.x - startPos.x, -(goalNode.pos.y - startPos.y));
         return result;
     }

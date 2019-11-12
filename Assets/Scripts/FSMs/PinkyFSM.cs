@@ -9,8 +9,6 @@ public class PinkyFSM : MonoBehaviour
     GameObject pacMan;
     Movement pacManMove;
     GameObject pinkyTarget;
-    Sprite dummy;
-    LineRenderer line;
 
     // Start is called before the first frame update
     void Start()
@@ -20,7 +18,6 @@ public class PinkyFSM : MonoBehaviour
         pacMan = GameObject.Find("PacMan(Clone)") ? GameObject.Find("PacMan(Clone)") : GameObject.Find("PacMan 1(Clone)");
         pacManMove = pacMan.GetComponent<Movement>();
         pinkyTarget = new GameObject("Pinky Target");
-        line = gameObject.GetComponent<LineRenderer>();
     }
 
     // Update is called once per frame
