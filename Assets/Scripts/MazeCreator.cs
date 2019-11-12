@@ -52,6 +52,7 @@ public class MazeCreator : MonoBehaviour {
 
     [HideInInspector]
     public string[] Map;
+    public List<GameObject> powerPellets;
 
 
 	void Awake () {
@@ -61,6 +62,7 @@ public class MazeCreator : MonoBehaviour {
         string[] lines = text.Split('\n');
         Map = lines;
         print(Map);
+        powerPellets = new List<GameObject>();
 
         // Parse through all that map
         for (int i = 0; i < lines.Length; i++)
@@ -119,7 +121,7 @@ public class MazeCreator : MonoBehaviour {
                 ///  Power Pellets  ///
                 else if (lines[i][j] == '+')
                 {
-                    Instantiate(powerPellet, new Vector3(j, -1 * i, -1), Quaternion.identity);
+                    powerPellets.Add(Instantiate(powerPellet, new Vector3(j, -1 * i, -1), Quaternion.identity));
                 }
 
                 ///  Gate  ///

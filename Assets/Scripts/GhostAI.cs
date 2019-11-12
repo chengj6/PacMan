@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /*****************************************************************************
  * IMPORTANT NOTES - PLEASE READ
@@ -164,6 +165,16 @@ public class GhostAI : MonoBehaviour {
                 return;
             }
         }
+
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            if (SceneManager.GetActiveScene().name == "GameScene") {
+                SceneManager.LoadScene("GameScene 1");
+            } else {
+                SceneManager.LoadScene("GameScene");
+            }
+        }
+
 		switch (_state) {
 		    case(State.waiting):
 
@@ -207,7 +218,6 @@ public class GhostAI : MonoBehaviour {
                 }
                 int posx = Mathf.RoundToInt(transform.position.x);
                 int posy = Mathf.RoundToInt(-1 * transform.position.y);
-                if (ghostID == 2) { print(ghostID + ": (" + posx + ", " + posy + ") | " + move.Map[posy][posx] + " -> " + moveDir); }
                 while (posx == 13 && posy == 11 && moveDir == new Vector2(0, 1)) {
                     moveDir = RandomMove();
                 }

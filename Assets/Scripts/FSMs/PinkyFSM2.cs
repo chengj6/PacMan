@@ -7,6 +7,7 @@ public class PinkyFSM2 : MonoBehaviour
     GhostAI ai;
     GameObject gate;
     GameObject pacMan;
+    GameObject scatterTarget;
 
     // Start is called before the first frame update
     void Start()
@@ -14,15 +15,18 @@ public class PinkyFSM2 : MonoBehaviour
         ai = gameObject.GetComponent<GhostAI>();
         gate = GameObject.Find("Gate(Clone)");
         pacMan = GameObject.Find("PacMan(Clone)") ? GameObject.Find("PacMan(Clone)") : GameObject.Find("PacMan 1(Clone)");
+        scatterTarget = new GameObject("Pinky Target");
+        scatterTarget.transform.position = new Vector3(26, -29, -2);
     }
 
-    // Code FSM transition for Blinky here
+    // Update is called once per frame
     void Update()
     {
         switch (ai._state)
         {
             case GhostAI.State.active:
                 ai.target = pacMan;
+
                 if (ai.dead)
                 {
                     ai._state = GhostAI.State.entering;
@@ -31,6 +35,11 @@ public class PinkyFSM2 : MonoBehaviour
                 {
                     ai._state = GhostAI.State.fleeing;
                 }
+                else if (pacMan.transform.position.y >= -18)
+                {
+                    ai._state = GhostAI.State.scatter;
+                }
+
                 break;
 
             case GhostAI.State.fleeing:
@@ -49,6 +58,24 @@ public class PinkyFSM2 : MonoBehaviour
                 if (gate.transform.position.y + 0.5f < gameObject.transform.position.y)
                 {
                     ai._state = GhostAI.State.active;
+                }
+                break;
+
+            case GhostAI.State.scatter:
+                ai.target = scatterTarget;
+                if (pacMan.transform.position.y < -18)
+                {
+                    ai._state = GhostAI.State.active;
+                }
+
+                if (ai.dead)
+                {
+                    ai._state = GhostAI.State.entering;
+                    ai.fleeing = false;
+                }
+                else if (ai.fleeing)
+                {
+                    ai._state = GhostAI.State.fleeing;
                 }
                 break;
         }
