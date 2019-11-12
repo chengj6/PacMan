@@ -26,15 +26,15 @@ public class ClydeFSM : MonoBehaviour
         {
             case GhostAI.State.active:
                 ai.target = pacMan;
-                if (Vector3.Distance(pacMan.transform.position, transform.position) <= 7f) {
-                    ai._state = GhostAI.State.scatter;
-                }
 
                 if (ai.dead) {
                     ai._state = GhostAI.State.entering;
                 } else if (ai.fleeing) {
                     ai._state = GhostAI.State.fleeing;
+                } else if (Vector3.Distance(pacMan.transform.position, transform.position) <= 7f) {
+                    ai._state = GhostAI.State.scatter;
                 }
+
                 break;
 
             case GhostAI.State.fleeing:
@@ -60,6 +60,7 @@ public class ClydeFSM : MonoBehaviour
 
                 if (ai.dead) {
                     ai._state = GhostAI.State.entering;
+                    ai.fleeing = false;
                 } else if (ai.fleeing) {
                     ai._state = GhostAI.State.fleeing;
                 }
