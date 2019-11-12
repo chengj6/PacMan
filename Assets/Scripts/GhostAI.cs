@@ -154,7 +154,7 @@ public class GhostAI : MonoBehaviour {
     /// 
     /// </summary>
 	void Update () {
-        if (ghostID == 3) { print(ghostID + ": " + _state); }
+        //print(ghostID + ": " + _state);
         Vector2 oppDir = new Vector2(-currDir.x, -currDir.y);
         if (turnTimeout) {
             if (currPos.x != Mathf.RoundToInt(transform.position.x) || 
@@ -177,7 +177,7 @@ public class GhostAI : MonoBehaviour {
 				    gameObject.GetComponent<Movement> ().MSpeed = 5f;
                     dead = false;
 
-                    if (ghostID == 3 || ghostID == 1) { _state = State.leaving; }
+                    _state = State.leaving;
                     //_state = State.leaving;
 
                     // etc.
@@ -205,7 +205,12 @@ public class GhostAI : MonoBehaviour {
                     turnTimeout = true;
                     currDir = moveDir;
                 }
-                if (ghostID == 3) { Debug.Log(moveDir); }
+                int posx = Mathf.RoundToInt(transform.position.x);
+                int posy = Mathf.RoundToInt(-1 * transform.position.y);
+                if (ghostID == 2) { print(ghostID + ": (" + posx + ", " + posy + ") | " + move.Map[posy][posx] + " -> " + moveDir); }
+                while (posx == 13 && posy == 11 && moveDir == new Vector2(0, 1)) {
+                    moveDir = RandomMove();
+                }
                 vec2move(moveDir);
                 break;
 
